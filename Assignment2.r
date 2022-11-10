@@ -1,15 +1,15 @@
 
 #Setting the working directory 
-setwd("~/Documents/UOFG/software_tools_class")
+# setwd("~/Documents/UOFG/software_tools_class")
 
 #Installing,updating ,and loading libraries 
-BiocManager::install(version = "3.15")
-BiocManager::install("Biostrings",force = TRUE)
-install.packages('bioseq')
-install.packages('qpcR')
-install.packages("rgl")
-install.packages("glmnet")
-install.packages('e1071')
+# BiocManager::install(version = "3.15")
+# BiocManager::install("Biostrings",force = TRUE)
+# install.packages('bioseq')
+# install.packages('qpcR')
+# install.packages("rgl")
+# install.packages("glmnet")
+# install.packages('e1071')
 library(Biostrings)
 library(rentrez)
 library(tidyverse)
@@ -221,7 +221,31 @@ Mean_length_barplot<-ggplot(data=Mean_len, aes(x=Gene, y=Sequence_Mean_length)) 
   
 Mean_length_barplot
 
-### Creating the predictors that will be used for RandomForest 
+
+
+
+####Collaborator edit 1####
+#make a histogram of the distribution of AT Frequency for HLA_A and HLA_B to visualize the distribution and view the reason for the small interquartile range observed in the box plots for HLA_B, and to understand why Q1 and Q3 aren't seemingly appearing. 
+#histogram of of AT for HLA_B frequency
+HLA_B_frequencyof_AT <- df_long %>%
+  filter(Gene == "HLA_B") %>%
+  filter(Dinucleotide == "AT")
+View(HLA_B_frequencyof_AT)
+hist(HLA_B_frequencyof_AT$Percentage)
+  
+#histogram of of AT for HLA_A frequency
+HLA_A_frequencyof_AT <- df_long %>%
+  filter(Gene == "HLA_A") %>%
+  filter(Dinucleotide == "AT")
+View(HLA_A_frequencyof_AT)
+hist(HLA_A_frequencyof_AT$Percentage)
+
+
+
+
+
+
+### Creating the predictors that will be used for RandomForest#### 
 
 #Creating a dataframe that contains Columns with the Genes and Column with corresponding sequences, This will be used as the training set 
 df_HLA_B_seq$Gene <- 'HLA-B'
@@ -351,4 +375,4 @@ Bayes_plot<- ggplot(data =  cm_Bayes_table, mapping = aes(x = Predicted, y = Obs
 Bayes_plot
 
 
-knitr::stitch('Assignment2.r')
+
