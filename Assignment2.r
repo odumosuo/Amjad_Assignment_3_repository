@@ -222,6 +222,9 @@ Mean_length_barplot<-ggplot(data=Mean_len, aes(x=Gene, y=Sequence_Mean_length)) 
 Mean_length_barplot
 
 
+
+
+
 ####################### Collaborator edit 2 #################################
 #Make a histogram of the sequence length to replace the bar plot that shows the mean length of the frequencies  
 hist(nchar(df_HLA_A_seq$HLA_A_Sequence), xlab = "Sequence_Length", ylab = "Frequency", main = "Frequency Histogram of HLA_A Sequence Lengths")
@@ -229,28 +232,54 @@ hist(nchar(df_HLA_A_seq$HLA_A_Sequence), xlab = "Sequence_Length", ylab = "Frequ
 hist(nchar(df_HLA_B_seq$HLA_B_Sequence), xlab = "Sequence_Length", ylab = "Frequency", main = "Frequency Histogram of HLA_B Sequence Lengths")
 
 
-####################### Collaborator edit 1 ################################
+
+
+####################### Collaborator edit 3_A ################################
+#Make data used below in tidy form. df_long contains data that is not tidy. There are duplicate records for each sequence. one for AT and one for GC
+#Get frequencies in new tidy object
+tidy_HLA_A <- cbind(df_HLA_A_seq, data.frame(x=letterFrequency(DNAStringSet(df_HLA_A_seq$HLA_A_Sequence), as.prob = TRUE,letters = c("AT"))), data.frame(x=letterFrequency(DNAStringSet(df_HLA_A_seq$HLA_A_Sequence), as.prob = TRUE,letters = c("GC"))))
+
+tidy_HLA_B <- cbind(df_HLA_B_seq, data.frame(x=letterFrequency(DNAStringSet(df_HLA_B_seq$HLA_B_Sequence), as.prob = TRUE,letters = c("AT"))), data.frame(x=letterFrequency(DNAStringSet(df_HLA_B_seq$HLA_B_Sequence), as.prob = TRUE,letters = c("GC"))))
+
+#Join the two tables
+#change column names to match
+colnames(tidy_HLA_A) <- c("Title", "Sequence", "Gene", "AT_frequency", "GC_frequency")
+colnames(tidy_HLA_B) <- c("Title", "Sequence", "Gene", "AT_frequency", "GC_frequency")
+#join
+tidy_A_and_B <- rbind(tidy_HLA_A, tidy_HLA_B)
+
+
+
+
+####################### Collaborator edit 1 and 3_B ################################
 #make a histogram of the distribution of AT Frequency for HLA_A and HLA_B to visualize the distribution and view the reason for the small interquartile range observed in the box plots for HLA_B, and to understand why Q1 and Q3 aren't seemingly appearing. 
-#histogram of of AT for HLA_B frequency
-HLA_B_frequencyof_AT <- df_long %>%
-  filter(Gene == "HLA_B") %>%
-  filter(Dinucleotide == "AT")
-View(HLA_B_frequencyof_AT)
-hist(HLA_B_frequencyof_AT$Percentage)
-  
 #histogram of of AT for HLA_A frequency
 HLA_A_frequencyof_AT <- df_long %>%
   filter(Gene == "HLA_A") %>%
   filter(Dinucleotide == "AT")
-View(HLA_A_frequencyof_AT)
-hist(HLA_A_frequencyof_AT$Percentage)
+hist(HLA_A_frequencyof_AT$Percentage, xlab = "AT percentage", ylab = "Frequency", main = "Frequency Histogram of HLA_A frequency")
+#make the histogram plot with tidy data to cross-check if the same. 
+tidyplot_A <- tidy_A_and_B %>%
+  filter(Gene == "HLA-A")
+hist(tidyplot_A$AT_frequency, xlab = "AT percentage", ylab = "Frequency", main = "Frequency Histogram of HLA_A frequency (Tidy plot)")
 
 
 
 
+#histogram of AT for HLA_B frequency
+HLA_B_frequencyof_AT <- df_long %>%
+  filter(Gene == "HLA_B") %>%
+  filter(Dinucleotide == "AT")
+hist(HLA_B_frequencyof_AT$Percentage, xlab = "AT percentage", ylab = "Frequency", main = "Frequency Histogram of HLA_B frequency")
+#histogram with tidy data
+tidyplot_B <- tidy_A_and_B %>%
+  filter(Gene == "HLA-B")
+hist(tidyplot_B$AT_frequency, xlab = "AT percentage", ylab = "Frequency", main = "Frequency Histogram of HLA_B frequency (Tidy plot)")
+
+####################### End of edits ################################
 
 
-### Creating the predictors that will be used for RandomForest#### 
+#### Creating the predictors that will be used for RandomForest#### 
 
 #Creating a dataframe that contains Columns with the Genes and Column with corresponding sequences, This will be used as the training set 
 df_HLA_B_seq$Gene <- 'HLA-B'
@@ -288,7 +317,7 @@ df_final <- cbind(df_final, as.data.frame(dinucleotideFrequency(df_final$Sequenc
 df_final <- cbind(df_final, as.data.frame(trinucleotideFrequency(df_final$Sequence, as.prob = TRUE)))
 ncol(df_final)
 
-#####TRAINING CLASSIFICATION MODEL
+#####TRAINING CLASSIFICATION MODEL ####
 
 #converting string format back to character data, so we can use tidyverse functions.
 df_final$Sequence <- as.character(df_final$Sequence)
@@ -308,7 +337,7 @@ df_Training <- df_final %>%
   group_by(Gene) %>%
   sample_n(61)
 
-###RandomForest
+###RandomForest ####
 #Training the classifier using the training set Using the randomforest Algorithm 
 gene_classifier <- randomForest::randomForest(x = df_Training[, 3:89], y = as.factor(df_Training$Gene), ntree = 50, importance = TRUE)
 
@@ -343,7 +372,7 @@ RF_plot
 
 
 
-###Naive Bayes 
+###Naive Bayes ####
 #Training the classifier using the training set using naive Bayes algorithm 
 
 gene_classifier_Bayes <- naiveBayes(df_Training[, 3:89], df_Training$Gene)
