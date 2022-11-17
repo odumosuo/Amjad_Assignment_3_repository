@@ -1,5 +1,5 @@
 
-#Setting the working directory 
+#### Setting the working directory ####
 # setwd("~/Documents/UOFG/software_tools_class")
 
 #Installing,updating ,and loading libraries 
@@ -32,23 +32,23 @@ entrez_db_searchable("nuccore")
 
 
 #Extracting HLA-A and B from the database (with web_history)
-HLA_A_gene <- entrez_search(db = "nuccore", term = "Human[ORGN] AND  HLA-A[GENE]" ,retmax = 1000,use_history=T)
+# HLA_A_gene <- entrez_search(db = "nuccore", term = "Human[ORGN] AND  HLA-A[GENE]" ,retmax = 1000,use_history=T)
+# 
+# HLA_B_gene <- entrez_search(db = "nuccore", term = "Human[ORGN] AND  HLA-B[GENE]", retmax = 1000,use_history=T)
 
-HLA_B_gene <- entrez_search(db = "nuccore", term = "Human[ORGN] AND  HLA-B[GENE]", retmax = 1000,use_history=T)
 
 
-
-####DATA Acquisition for HLA-A sequences
+#### DATA Acquisition for HLA-A sequences ####
 
 #Getting the sequence of HLA-A with web-history
-web_history_HLA_A_seq <- entrez_fetch(db = "nuccore", web_history = HLA_A_gene$web_history, rettype = "fasta")
+# web_history_HLA_A_seq <- entrez_fetch(db = "nuccore", web_history = HLA_A_gene$web_history, rettype = "fasta")
 
 #Checking the class
-class(web_history_HLA_A_seq)
+# class(web_history_HLA_A_seq)
 
 
 #Saving the HLA-A sequence to the hard drive and separating based on new line 
-write(web_history_HLA_A_seq, "HLA_A_seq.fasta", sep = "\n")
+# write(web_history_HLA_A_seq, "HLA_A_seq.fasta", sep = "\n")
 
 
 # Read it back in as DNA StringSet using the readDNAStringSet() function.
@@ -58,10 +58,10 @@ HLA_A_seq_stingset <- readDNAStringSet("HLA_A_seq.fasta")
 
 #Creating a dataframe for the HLA-A
 df_HLA_A_seq <- data.frame(HLA_A_Title = names(HLA_A_seq_stingset), HLA_A_Sequence = paste(HLA_A_seq_stingset))
-df_HLA_A_seq
+View(df_HLA_A_seq)
 
 
-#### DATA Exploration for HLA-A
+#### DATA Exploration for HLA-A ####
 
 
 #Calculating the mean length of the sequences for HLA-A, used downstream for creating a barplot
@@ -103,17 +103,17 @@ df_HLA_A_seq = df_HLA_A_seq[(which(nchar(df_HLA_A_seq$HLA_A_Sequence)  >= HLA_A_
 summary(nchar(df_HLA_A_seq$HLA_A_Sequence))
 
 
-####Acquiring HLA-B sequence
+####Acquiring HLA-B sequence####
 
 #Getting the sequence of HLA-B with web-history
-web_history_HLA_B_seq <- entrez_fetch(db = "nuccore", web_history = HLA_B_gene$web_history, rettype = "fasta")
+#web_history_HLA_B_seq <- entrez_fetch(db = "nuccore", web_history = HLA_B_gene$web_history, rettype = "fasta")
 
 #Checking the class
-class(web_history_HLA_B_seq)
+# class(web_history_HLA_B_seq)
 
 
 #saving the HLA-B sequence to the hard drive and separating based on new line
-write(web_history_HLA_B_seq, "HLA_B_seq.fasta", sep = "\n")
+# write(web_history_HLA_B_seq, "HLA_B_seq.fasta", sep = "\n")
 
 
 # Read it back in as DNA StringSet using the readDNAStringSet() function.
@@ -222,9 +222,14 @@ Mean_length_barplot<-ggplot(data=Mean_len, aes(x=Gene, y=Sequence_Mean_length)) 
 Mean_length_barplot
 
 
+####################### Collaborator edit 2 #################################
+#Make a histogram of the sequence length to replace the bar plot that shows the mean length of the frequencies  
+hist(nchar(df_HLA_A_seq$HLA_A_Sequence), xlab = "Sequence_Length", ylab = "Frequency", main = "Frequency Histogram of HLA_A Sequence Lengths")
+
+hist(nchar(df_HLA_B_seq$HLA_B_Sequence), xlab = "Sequence_Length", ylab = "Frequency", main = "Frequency Histogram of HLA_B Sequence Lengths")
 
 
-####Collaborator edit 1####
+####################### Collaborator edit 1 ################################
 #make a histogram of the distribution of AT Frequency for HLA_A and HLA_B to visualize the distribution and view the reason for the small interquartile range observed in the box plots for HLA_B, and to understand why Q1 and Q3 aren't seemingly appearing. 
 #histogram of of AT for HLA_B frequency
 HLA_B_frequencyof_AT <- df_long %>%
@@ -289,8 +294,8 @@ ncol(df_final)
 df_final$Sequence <- as.character(df_final$Sequence)
 
 #Creating a Validation set and a Training set which don't overlap, The Training set will be used to train the algorithm and the validation set will be used for the prediction. Set.seed is used for reproducible.
-set.seed(200)
 
+set.seed(200)
 dfValidation <- df_final %>%
   group_by(Gene) %>%
   sample_n(1000)
